@@ -1,8 +1,8 @@
-var link = {};
-var options = [];
+var registerLink = {};
+var cityOptions = [];
 
 function setRegisterContent(link) {
-    self.link = link;
+    self.registerLink = link;
 
     $("#container-content").remove();
     $("#container-header").append('<div id="container-content" style="background-color: rgba(238, 238, 238, 0.85);'
@@ -11,8 +11,8 @@ function setRegisterContent(link) {
 
     formHtml = '<form>';
 
-    for(var i = 0; i < link.requestTemplate.length; i++) {
-        var reqItem = link.requestTemplate[i];
+    for(var i = 0; i < registerLink.requestTemplate.length; i++) {
+        var reqItem = registerLink.requestTemplate[i];
         //console.log("reqItem.field: "+reqItem.field);
 
         if(reqItem.type == "password") {
@@ -29,15 +29,15 @@ function setRegisterContent(link) {
                 dataType: 'json',
                 async: false,
                 success: function (data) {
-                    self.options = data;
+                    self.cityOptions = data;
                 }
             });
             formHtml += '<div class="form-group">'+
                 '<label for="'+reqItem.field+'">'+capitalizeFirstLetter(reqItem.field)+'</label>';
             formHtml += '<select class="form-control" id="'+reqItem.field+'">';
             formHtml += '<option selected="selected"></option>';
-            for(var j=0; j<options.length; j++) {
-                formHtml += '<option>'+options[j].name+'</option>';
+            for(var j=0; j<cityOptions.length; j++) {
+                formHtml += '<option>'+cityOptions[j].name+'</option>';
             }
             formHtml +='</select></div>';
         } else {
@@ -50,14 +50,14 @@ function setRegisterContent(link) {
         }
     }
 
-    formHtml += '<button type="button" onclick="register()" class="btn btn-primary">Submit</button>';
+    formHtml += '<button type="button" onclick="register()" style="border-radius: 0;" class="btn btn-primary">Submit</button>';
     formHtml += '</form>';
     $("#container-content").append(formHtml);
 
     $('select').on('change', function(e){
         console.log("onChange!!!");
         console.log(this.value);//,
-        //this.options[this.selectedIndex].value,
+        //this.cityOptions[this.selectedIndex].value,
         //$(this).find("option:selected").val());
     });
 }
@@ -66,9 +66,9 @@ $.getScript('login.js', function() {
 });
 
 function register() {
-    var request = new Object();
-    for(var i = 0; i < self.link.requestTemplate.length; i++) {
-        var reqItem = self.link.requestTemplate[i];
+    var request = {};
+    for(var i = 0; i < self.registerLink.requestTemplate.length; i++) {
+        var reqItem = self.registerLink.requestTemplate[i];
         var value = $('#'+reqItem.field).val();
         var isValidated = true;
 
@@ -99,10 +99,10 @@ function register() {
         }
 
         if(reqItem.type == "list") {
-            for(var j=0; i<self.options.length; j++) {
-                //console.log(self.options[j]);
-                if(self.options[j].name == value) {
-                    value = self.options[j].id;
+            for(var j=0; i<self.cityOptions.length; j++) {
+                //console.log(self.cityOptions[j]);
+                if(self.cityOptions[j].name == value) {
+                    value = self.cityOptions[j].id;
                     break;
                 }
             }
@@ -113,7 +113,7 @@ function register() {
 
     if(isValidated) {
         console.log(request);
-        makeRegisterRequest(request, self.link.method, self.link.href);
+        makeRegisterRequest(request, self.registerLink.method, self.registerLink.href);
     }
 }
 
@@ -129,8 +129,8 @@ function makeRegisterRequest(requestBody, requestMethod, href) {
             console.log("Success!!!! ");
 
             $.notify("Successfully registered", "success");
-            setContainerHeader(welcomeLinks.login);
-            setLoginContent(welcomeLinks.login);
+            setContainerHeader(menuLinks.login);
+            setLoginContent(menuLinks.login);
         },
         error: function (data) {
             console.log("Sadness");
