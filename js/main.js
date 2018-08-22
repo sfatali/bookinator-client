@@ -196,6 +196,6 @@ function appendMenuLogout(link) {
     });
 }
 
-$("#bookModal").load("book_modal.html");
+
 
 
