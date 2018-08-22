@@ -1,10 +1,10 @@
-var exploreLink;
+var exploreAuthLink;
 var selectedOptionsMap = {};
 
-function setExploreContent(link) {
-    exploreLink = link;
-    console.log(exploreLink);
-    console.log(exploreLink.urlTemplate);
+function setExploreAuthContent(link) {
+    exploreAuthLink = link;
+    //console.log(exploreAuthLink);
+    //console.log(exploreAuthLink.urlTemplate);
 
     $("#container-content").remove();
     //$("#container-header").append('<div id="container-content"><div id="form-content" style="background-color: rgba(238, 238, 238, 0.85);'
@@ -14,15 +14,13 @@ function setExploreContent(link) {
     formHtml = '<div id="container-content"><div id="form-content" style="background-color: rgba(238, 238, 238, 0.85);'
         +'margin: auto; width: 750px; padding: 25px"><form>';
 
-    for(var i = 0; i < exploreLink.urlTemplate.length; i++) {
-        console.log(exploreLink.urlTemplate[i]);
-        var urlItem = exploreLink.urlTemplate[i];
-        console.log(urlItem.title);
-        console.log(i);
+    for(var i = 0; i < exploreAuthLink.urlTemplate.length; i++) {
+        //console.log(exploreAuthLink.urlTemplate[i]);
+        var urlItem = exploreAuthLink.urlTemplate[i];
+        //console.log(urlItem.title);
 
         // every row has 3 columns, that's why:
         if(i%3 === 0) {
-            console.log(" new fuckin row: "+i%4);
             formHtml += '<div class="row">';
         }
 
@@ -52,13 +50,13 @@ function setExploreContent(link) {
                 '</div></div>';
         }
 
-        if(i === 2 || i%3 === 2 || i === exploreLink.urlTemplate.length-1) {
+        if(i === 2 || i%3 === 2 || i === exploreAuthLink.urlTemplate.length-1) {
             formHtml += '</div>';
         }
     }
 
     formHtml += '<div class="row">' +
-        '<button type="button" onclick="explore()" style="margin-left: 17px; border-radius: 0;" class="btn btn-primary">' +
+        '<button type="button" onclick="exploreAuth()" style="margin-left: 17px; border-radius: 0;" class="btn btn-primary">' +
         'Search</button></div>';
     formHtml += '</form></div></div>';
     $("#container-header").append(formHtml);
@@ -71,12 +69,12 @@ function showOptions(s) {
     selectedOptionsMap[s.id] = s[s.selectedIndex].id;
 }
 
-function explore() {
+function exploreAuth() {
     var paramString = "?";
-    for(var i = 0; i < exploreLink.urlTemplate.length; i++) {
-        var urlItem = exploreLink.urlTemplate[i];
+    for(var i = 0; i < exploreAuthLink.urlTemplate.length; i++) {
+        var urlItem = exploreAuthLink.urlTemplate[i];
         var value = $('#'+urlItem.param).val();
-        console.log("value: "+value);
+        //console.log("value: "+value);
 
         if(urlItem.type === "list") {
             value = selectedOptionsMap[urlItem.param];
@@ -87,12 +85,11 @@ function explore() {
             paramString = paramString +urlItem.param + "=" + value + "&";
         }
     }
-    var href = exploreLink.href.substring(0, exploreLink.href.indexOf("{"));
-    makeExploreRequest(paramString, exploreLink.method, href);
+    var href = exploreAuthLink.href.substring(0, exploreAuthLink.href.indexOf("{"));
+    makeExploreAuthRequest(paramString, exploreAuthLink.method, href);
 }
 
-function makeExploreRequest(paramString, requestMethod, href) {
-    console.log("yooo");
+function makeExploreAuthRequest(paramString, requestMethod, href) {
     console.log(paramString);
     console.log(href);
     $("#embedded").remove();
@@ -101,9 +98,13 @@ function makeExploreRequest(paramString, requestMethod, href) {
         url: href+paramString,
         type: requestMethod,
         dataType: 'json',
+        beforeSend: function (xhr){
+            console.log(localStorage.getItem("token"));
+            xhr.setRequestHeader('Authorization', localStorage.getItem("token"));
+        },
         success: function(data) {
             console.log(data);
-            appendBooks(data);
+            appendAuthBooks(data);
         },
         error: function (data) {
             console.log("Sadness");
@@ -113,7 +114,7 @@ function makeExploreRequest(paramString, requestMethod, href) {
     });
 }
 
-function appendBooks(data) {
+function appendAuthBooks(data) {
     $("#container-content").after('<div id="embedded"></div>');
     var lastElement = "#embedded";
     var books = data._embedded.books;
@@ -122,14 +123,14 @@ function appendBooks(data) {
 
         var bookHtml = '<div id="book'+books[i].bookId+'" style="background-color: rgba(255, 255, 255, 0.95);' +
             ' margin: auto; height: auto; margin-top: 20px; width: 750px; padding: 8px; ' +
-            'padding-left: 18px; padding-bottom: 30px">';
+            'padding-left: 18px; padding-bottom: 18px">';
 
         /*if(books[i].yearPublished !== "") {
-            bookHtml += '<row><div class="col-sm-1" style="font-weight: bold;">'+books[i].yearPublished+'</div>' +
-                '<div class="col-sm-11 text-primary" style="font-weight: bold;">'+books[i].name+'</div></row>';
-        } else {
-            bookHtml += '<row><div class="col-sm-12 text-primary" style="font-weight: bold;">'+books[i].name+'</div></row>';
-        }*/
+         bookHtml += '<row><div class="col-sm-1" style="font-weight: bold;">'+books[i].yearPublished+'</div>' +
+         '<div class="col-sm-11 text-primary" style="font-weight: bold;">'+books[i].name+'</div></row>';
+         } else {
+         bookHtml += '<row><div class="col-sm-12 text-primary" style="font-weight: bold;">'+books[i].name+'</div></row>';
+         }*/
 
         bookHtml += '<div class="row">';
         if(books[i].yearPublished !== "") {
@@ -170,7 +171,7 @@ function appendBooks(data) {
             '<span class="glyphicon glyphicon-shopping-cart"></span>&nbsp;<b>'+books[i].holdingType+'</b></div>';
         bookHtml += '</div>';
 
-        bookHtml += '<div class="row">';
+        bookHtml += '<div class="row" style="padding-bottom: 10px;">';
         if(books[i].description !== "") {
             bookHtml += '<div class="col-sm-10"> <b>Description:</b> '+books[i].description+'</div>';
         } else {
@@ -180,7 +181,49 @@ function appendBooks(data) {
             '<span class="glyphicon glyphicon-map-marker"></span>&nbsp;<b>'+books[i].city+'</b></div>';
         bookHtml += '</div>';
 
-        //bookHtml += "<div>Bla-bla-bla</div>";
+        var bookLinks = books[i]._links;
+
+        bookHtml += '<div class="row">';
+        if(bookLinks['addtowishlist'] !== undefined) {
+            //var onclickText = 'addToWishlist('+JSON.stringify(books[i])+')';
+            //var onclickText = 'onclick=addToWishlist('+JSON.stringify(books[i])+') ';
+            var buttonId = "#wishButton"+books[i].bookId;
+            var onclickText = 'onclick=addToWishlist('+books[i].bookId+',\"'+
+                bookLinks['addtowishlist'].href+'\",\"' +
+                bookLinks['addtowishlist'].method+'\",\"' +
+                buttonId+'\") ';
+            //console.log(onclickText);
+
+            bookHtml += '<div  class="col-sm-2">' +
+                    '<button id ="wishButton'+books[i].bookId+'" type="button" ' +
+                //'onclick="addToWishlist('+JSON.stringify(books[i])+')" ' +
+                //'onclick="addToWishlist(\"'+"why!"+'\")" ' +
+                //'onclick="addToWishlist(\"\"'+'why!'+')" ' +
+                onclickText +
+                'style="border-radius: 0;"' +
+                ' class="btn btn-info">'+bookLinks['addtowishlist'].title+'</button>' +
+                '</div>';
+        } else {
+            bookHtml += '<div class="col-sm-2">' +
+                '<button disabled type="button" style="border-radius: 0;"' +
+                ' class="btn btn-info">Add to wishlist</button>' +
+                '</div>';
+        }
+
+        if(bookLinks['makerequest'] !== undefined) {
+            bookHtml += '<div class="col-sm-2">' +
+                '<button id ="reqButton'+books[i].bookId+'" type="button"' +
+                'onclick="makeBookRequest('+books[i]+')" style="border-radius: 0;"' +
+                ' class="btn btn-success">'+bookLinks['makerequest'].title+'</button>' +
+                '</div>';
+        } else {
+            bookHtml += '<div class="col-sm-2">' +
+                '<button disabled type="button" style="border-radius: 0;"' +
+                ' class="btn btn-success">Request the book</button>' +
+                '</div>';
+        }
+        bookHtml += '</div>';
+
         // closes line 122
         bookHtml += '</div>';
 
@@ -192,4 +235,40 @@ function appendBooks(data) {
         lastElement = "#book"+books[i].bookId;
     }
 }
+
+function addToWishlist(bookId, href, method, buttonId) {
+    console.log("was here");
+    console.log(bookId);
+    console.log(href);
+    console.log(method);
+    console.log(buttonId);
+
+    var requestBody = {};
+    requestBody['bookId'] = bookId;
+
+    $.ajax({
+        url: href,
+        type: method,
+        contentType: 'application/json',
+        data: JSON.stringify(requestBody),
+        beforeSend: function (xhr){
+            console.log(localStorage.getItem("token"));
+            xhr.setRequestHeader('Authorization', localStorage.getItem("token"));
+        },
+        success: function(data) {
+            console.log(data);
+            $(buttonId).prop("disabled",true);
+            $.notify("Book was added to your wishlist", "success");
+        },
+        error: function (data) {
+            console.log("Sadness");
+            console.log(data);
+            $.notify(data.responseJSON.message, "error");
+        }
+    });
+}
+
+function makeBookRequest(data) {
+}
+
 

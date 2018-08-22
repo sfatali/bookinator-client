@@ -37,7 +37,7 @@ function makeWelcomeRequest() {
 
 function makeHomeRequest() {
     var mainLink = JSON.parse(localStorage.getItem("mainLink"));
-    //console.log(mainLink);
+
     //requesting Home resource
     $.ajax({
         url: mainLink.href,
@@ -127,6 +127,7 @@ function appendMenuExploreAuth(link) {
 
     $("#exploreAuthLink").click(function() {
         setContainerHeader(link);
+        setExploreAuthContent(link);
     });
 }
 
@@ -147,6 +148,7 @@ function appendMenuBooks(link) {
 
     $("#booksLink").click(function() {
         setContainerHeader(link);
+        setBookPostsContent(link);
     });
 }
 
@@ -157,6 +159,8 @@ function appendMenuWishlist(link) {
 
     $("#wishlistLink").click(function() {
         setContainerHeader(link);
+        console.log(link);
+        setWishlistContent(link);
     });
 }
 
@@ -191,5 +195,7 @@ function appendMenuLogout(link) {
         window.location.reload();
     });
 }
+
+$("#bookModal").load("book_modal.html");
 
 
